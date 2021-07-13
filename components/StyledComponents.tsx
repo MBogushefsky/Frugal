@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { Modal, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { TextProps } from './Themed';
-import { Text } from 'react-native-paper';
+import { Badge, Text } from 'react-native-paper';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
 import { MActivityIndicator } from './StyledMaterial';
+import { ConvertToCurrency, GetAmountType, AmountType } from '../services/FoundationService';
 
 export function SView(props: any) {
   return <View {...props} style={[styles.view, props.style]}>
@@ -34,7 +35,9 @@ export function SScrollView(props: any) {
 }
 
 export function SText(props: TextProps) {
-  return <Text {...props} style={[styles.text, props.style]} />;
+  return <Text {...props} style={[styles.text, props.style]}>
+    {props.children}
+  </Text>;
 }
 
 export function SSegmentControl(props: any) {
@@ -62,7 +65,38 @@ export function SAlertModal(props: any) {
   </Modal>
 }
 
+export function SCurrencyText(props: any) {
+  let currencyValue = props.value;
+  let amountType = GetAmountType(currencyValue);
+  let styleToUse = styles.textCurrencyZero;
+  if (amountType == AmountType.POSITIVE) {
+    styleToUse = styles.textCurrencyPositive;
+  }
+  else if (amountType == AmountType.NEGATIVE) {
+    styleToUse = styles.textCurrencyNegative;
+  }
+  return <SText {...props} style={[styleToUse, props.style]}>
+      { ConvertToCurrency(currencyValue) }
+  </SText>;
+}
 
+export function SCurrencyBadge(props: any) {
+  let currencyValue = props.value;
+  let amountType = GetAmountType(currencyValue);
+  let styleToUse: any = styles.badgeCurrencyZero;
+  if (props.type != null && props.type == 'credit') {
+    styleToUse = styles.badgeCurrencyCredit;
+  }
+  else if (amountType == AmountType.POSITIVE) {
+    styleToUse = styles.badgeCurrencyPositive;
+  }
+  else if (amountType == AmountType.NEGATIVE) {
+    styleToUse = styles.badgeCurrencyNegative;
+  }
+  return <Badge {...props} style={[styleToUse, styles.badgeCurrency, props.style]}>
+      { ConvertToCurrency(currencyValue) }
+  </Badge>;
+}
 
 const styles = StyleSheet.create({
   view: {
@@ -71,7 +105,6 @@ const styles = StyleSheet.create({
     width: '100%'
   },
   scrollViewContent: {
-    alignItems: "center"
   },
   text: {
     fontFamily: 'System'
@@ -122,5 +155,31 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 15,
     textAlign: "center"
+  },
+  textCurrencyPositive: {
+    color: 'green'
+  },
+  textCurrencyZero: {
+    color: 'grey'
+  },
+  textCurrencyNegative: {
+    color: 'red'
+  },
+  badgeCurrency: {
+    minWidth: 85
+  },
+  badgeCurrencyPositive: {
+    backgroundColor: 'green'
+  },
+  badgeCurrencyZero: {
+    backgroundColor: 'grey',
+    color: 'white'
+  },
+  badgeCurrencyCredit: {
+    backgroundColor: '#2C778F',
+    color: 'white'
+  },
+  badgeCurrencyNegative: {
+    backgroundColor: 'red'
   }
 });

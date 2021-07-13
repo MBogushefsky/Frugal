@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { StyleSheet } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { MCard, MCardContent, MListItem, MListSection, MPrimaryButton } from '../components/StyledMaterial';
 import PlaidLink, { LinkExit, LinkLogLevel, LinkSuccess } from 'react-native-plaid-link-sdk';
 import { CreateLinkToken, GetBankAccounts, SavePublicToken } from '../services/RestApiService';
 import { SScrollView, SText, SView } from '../components/StyledComponents';
 import BankAccount from '../models/BankAccount';
 import { Ionicons } from '@expo/vector-icons';
-import { ConvertToCurrency } from '../services/FoundationService';
+import { ConvertToCurrency, ScrambleBankAccountsIfNeeded } from '../services/FoundationService';
 
 export default function LinkedBankAccountsScreen({ navigation }: any) {
   const [loadingToken, setLoadingToken] = React.useState(false);
@@ -17,13 +17,13 @@ export default function LinkedBankAccountsScreen({ navigation }: any) {
 
   if (!attemptedLoadingAccounts) {
     setAttemptedLoadingAccounts(true);
-    setLoadingAccounts(true);
     loadBankAccounts();
   }
 
   function loadBankAccounts() {
     return GetBankAccounts().then((response) => response.json()).then(
       (bankAccounts: BankAccount[]) => {
+        ScrambleBankAccountsIfNeeded(bankAccounts);
         setLoadedAccounts([...bankAccounts]);
         setLoadingAccounts(false);
       }
@@ -67,17 +67,17 @@ export default function LinkedBankAccountsScreen({ navigation }: any) {
 
   return (
     <SView style={styles.container} loading={loadingToken}>
-      <SScrollView isRefreshable={true} refreshing={loadingAccounts} onRefresh={() => loadBankAccounts()}>
+      <SScrollView isRefreshable={true} refreshing={loadingAccounts} onRefresh={() => loadBankAccounts()} contentContainerStyle={styles.scrollViewContent}>
         <MCard>
           <MCardContent style={styles.cardContentAccounts}>
             <MListSection>
               {
                 attemptedLoadingAccounts && !loadingAccounts && loadedAccounts.map((bankAccount: BankAccount) => {
                   if (bankAccount.type == 'depository') {
-                    return <MListItem title={bankAccount.name} description={ConvertToCurrency(bankAccount.currentBalance) + ' available'}/>
+                    return <MListItem key={bankAccount.Id} title={bankAccount.name} description={ConvertToCurrency(bankAccount.currentBalance) + ' available'}/>
                   }
                   else if (bankAccount.type == 'credit') {
-                    return <MListItem title={bankAccount.name} 
+                    return <MListItem key={bankAccount.Id} title={bankAccount.name} 
                       description={ConvertToCurrency(bankAccount.availableBalance) + ' available, ' + 
                         ConvertToCurrency(bankAccount.currentBalance) + ' credited'}/>
                   }
@@ -97,6 +97,12 @@ export default function LinkedBankAccountsScreen({ navigation }: any) {
                   <Ionicons name="link-outline" size={15}/> Link
                 </MPrimaryButton>
               </PlaidLink>
+            }
+            {
+              loadingToken || receivedToken == null && 
+              <MPrimaryButton disabled={true} style={[styles.buttonLink, styles.buttonBorderRadius]} contentStyle={styles.buttonBorderRadius}>
+                <ActivityIndicator size="small" color="#808080" />
+              </MPrimaryButton>
             }
           </MCardContent>
         </MCard>
@@ -120,5 +126,8 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 20,
     borderBottomRightRadius: 20,
     overflow: 'hidden'
+  },
+  scrollViewContent: {
+    alignItems: 'center'
   }
 });

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, View, Image } from 'react-native';
+import { View, Image } from 'react-native';
 import { createDrawerNavigator, DrawerContentScrollView, DrawerItem, DrawerItemList } from '@react-navigation/drawer';
 import HomeScreen from '../screens/HomeScreen';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -15,6 +15,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentUser } from '../redux/Reducers';
 import RegisterRestInterceptor from '../interceptors/RestInterceptor';
 import CurrentUserData from '../models/CurrentUserData';
+import HomeBottomTabNavigator from './HomeBottomTabNavigator';
 
 const HomeScreenStack = createStackNavigator();
 
@@ -38,6 +39,28 @@ function StatsScreen({ navigation }: any) {
         component={HomeScreen} />
     </HomeScreenStack.Navigator>
   );
+}
+
+function ReocurringScreen({ navigation }: any) {
+    return (
+        <HomeScreenStack.Navigator>
+            <HomeScreenStack.Screen 
+                options={{ headerTitle: "Reocurring", headerLeft: () => (SideMenuDrawerButton(navigation)) }} 
+                name="Reocurring" 
+                component={HomeScreen} />
+        </HomeScreenStack.Navigator>
+    );
+}
+
+function InvestingScreen({ navigation }: any) {
+    return (
+        <HomeScreenStack.Navigator>
+            <HomeScreenStack.Screen 
+                options={{ headerTitle: "Investing", headerLeft: () => (SideMenuDrawerButton(navigation)) }} 
+                name="Investing" 
+                component={HomeScreen} />
+        </HomeScreenStack.Navigator>
+    );
 }
 
 const LinkedBankAccountsScreenStack = createStackNavigator();
@@ -125,6 +148,14 @@ export default function SideMenuDrawerNavigator() {
             }}/>
             <Drawer.Screen name="Stats" component={StatsScreen} options={{
                 drawerIcon: ({ focused, size }) => <Ionicons name="pie-chart-outline" size={size} 
+                    style={[focused ? { color: colors.primary } : { color: colors.backdrop }, styles.drawerIcon]}/>
+            }} />
+            <Drawer.Screen name="Reocurring" component={ReocurringScreen} options={{
+                drawerIcon: ({ focused, size }) => <Ionicons name="reload-circle-outline" size={size} 
+                    style={[focused ? { color: colors.primary } : { color: colors.backdrop }, styles.drawerIcon]}/>
+            }} />
+            <Drawer.Screen name="Investing" component={InvestingScreen} options={{
+                drawerIcon: ({ focused, size }) => <Ionicons name="bar-chart-outline" size={size} 
                     style={[focused ? { color: colors.primary } : { color: colors.backdrop }, styles.drawerIcon]}/>
             }} />
             <Drawer.Screen name="Linked Bank Accounts" component={LinkedBankAccountsScreenNavigator} options={{

@@ -16,7 +16,6 @@ import SignUpScreen from '../screens/SignUpScreen';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
 import { setCurrentUser } from '../redux/Reducers';
-import RegisterRestInterceptor from '../interceptors/RestInterceptor';
 import CurrentUserData from '../models/CurrentUserData';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
@@ -41,7 +40,6 @@ function RootNavigator() {
   AsyncStorage.getItem('currentUser').then(
     (value: any) => {
       if (!isStorageLoaded) {
-        console.log(value);
         dispatch(setCurrentUser(JSON.parse(value) as CurrentUserData));
         setIsStorageLoaded(true);
       }
