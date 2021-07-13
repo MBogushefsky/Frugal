@@ -13,6 +13,11 @@ import { RootStackParamList } from '../types';
 import LinkingConfiguration from './LinkingConfiguration';
 import SideMenuDrawerNavigator from './SideMenuDrawerNavigator';
 import SignUpScreen from '../screens/SignUpScreen';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useDispatch, useSelector } from 'react-redux';
+import { setCurrentUser } from '../redux/Reducers';
+import RegisterRestInterceptor from '../interceptors/RestInterceptor';
+import CurrentUserData from '../models/CurrentUserData';
 
 export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeName }) {
   return (
@@ -29,8 +34,24 @@ export default function Navigation({ colorScheme }: { colorScheme: ColorSchemeNa
 const Stack = createStackNavigator<RootStackParamList>();
 
 function RootNavigator() {
+  const dispatch = useDispatch();
+  const { currentUser } = useSelector((state: any) => state.currentUser);
+  const [isStorageLoaded, setIsStorageLoaded] = React.useState(false);
+
+  AsyncStorage.getItem('currentUser').then(
+    (value: any) => {
+      if (!isStorageLoaded) {
+        console.log(value);
+        dispatch(setCurrentUser(JSON.parse(value) as CurrentUserData));
+        setIsStorageLoaded(true);
+      }
+    }
+  )
+  
+  if (currentUser != null && currentUser.Id == '') { return null; }
+
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false, animationEnabled: false }} initialRouteName="Login">
+    <Stack.Navigator screenOptions={{ headerShown: false, animationEnabled: false }} initialRouteName={currentUser != null ? 'Root' : 'Login'}>
       <Stack.Screen name="Root" component={SideMenuDrawerNavigator} />
       <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="SignUp" component={SignUpScreen} />
@@ -38,3 +59,4 @@ function RootNavigator() {
     </Stack.Navigator>
   );
 }
+

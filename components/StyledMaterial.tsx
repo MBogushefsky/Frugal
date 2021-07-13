@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, Card, Divider, List, TextInput } from 'react-native-paper';
+import { ActivityIndicator, Button, Card, Divider, List, TextInput } from 'react-native-paper';
 import { StyleSheet } from 'react-native';
 
 export function MCard(props: any) {
@@ -47,7 +47,7 @@ export function MDivider(props: any) {
 }
 
 export function MTextInput(props: any) {
-    return <TextInput {...props} underlineColor="transparent"
+    return <TextInput {...props} underlineColor="transparent" 
           style={[styles.textInput, props.style]}>
           {props.children}
       </TextInput>;
@@ -67,6 +67,11 @@ export function MSecondaryButton(props: any) {
           contentStyle={[styles.buttonContent, props.contentStyle]}>
           {props.children}
       </Button>;
+}
+
+export function MActivityIndicator(props: any) {
+    return <ActivityIndicator size={80} color="#08AA97" {...props} 
+        style={[styles.activityIndicator, props.style]} />;
 }
 
 const styles = StyleSheet.create({
@@ -98,10 +103,12 @@ const styles = StyleSheet.create({
     },
     primaryButton: {
         width: '100%',
+        maxHeight: 100,
         justifyContent: 'center'
     },
     secondaryButton: {
         width: '100%',
+        maxHeight: 100,
         backgroundColor: '#3dc2ff',
         justifyContent: 'center'
     },
@@ -117,4 +124,13 @@ const styles = StyleSheet.create({
         height: '100%',
         justifyContent: 'center'
     },
+    activityIndicator: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        justifyContent: 'center',
+        alignItems: 'center'
+    }
 });

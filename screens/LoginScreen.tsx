@@ -1,17 +1,52 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import * as React from 'react';
-import { StyleSheet, Image } from 'react-native';
-import { TextInput, useTheme } from 'react-native-paper';
-import { color } from 'react-native-reanimated';
-import { MPrimaryButton, MCard, MCardActions, MCardContent, MTextInput, MSecondaryButton } from '../components/StyledMaterial';
+import { StyleSheet, Image, Modal } from 'react-native';
+import { TextInput } from 'react-native-paper';
+import { MPrimaryButton, MCard, MCardActions, MCardContent, MTextInput, MSecondaryButton, MActivityIndicator } from '../components/StyledMaterial';
 import { Text, View } from '../components/Themed';
+import { Login } from '../services/RestApiService';
+import * as Crypto from 'expo-crypto';
+import { SAlertModal } from '../components/StyledComponents';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CommonActions } from '@react-navigation/native';
 
 export default function LoginScreen({ navigation }: any) {
+  const [username, setUsername] = React.useState('');
+  const [password, setPassword] = React.useState('');
+  const [loading, setLoading] = React.useState(false);
+  const [modalMessage, setModalMessage] = React.useState('');
+
+  function onSubmit() {
+    setLoading(true);
+    AttemptLogin(navigation, username, password).then((response) => { 
+      setLoading(false); 
+      if (response.ok) {
+        response.json().then((responseJson) => {
+          AsyncStorage.setItem('currentUser', JSON.stringify(responseJson)).then(
+            () => {
+              navigation.dispatch(
+                CommonActions.reset({
+                  routes: [{ name: 'Root' }]
+                })
+              );
+            }
+          )
+        })
+      }
+      else if (response.status == 404) {
+        setModalMessage('Incorrect username and password');
+      }
+      else {
+        response.json().then((responseJson) => {setModalMessage(JSON.stringify(responseJson))});
+      }
+    });
+  }
+
   return (
     <View style={styles.container}>
       <LinearGradient colors={['rgb(97, 206, 112)', 'rgb(8, 170, 151)']}
         style={styles.linearGradientBackground}>
-        <MCard style={styles.viewLogin}>
+        <MCard style={styles.cardLogin}>
           <MCardContent style={styles.cardContentMain}>
             <View style={styles.viewLogo}>
               <Image style={styles.imageLogo} source={require('../assets/images/leaf-icon-small.png')}/>
@@ -22,17 +57,42 @@ export default function LoginScreen({ navigation }: any) {
             </View>
           </MCardContent>
           <MCardContent style={styles.cardContentInput}>
-            <MTextInput label="Username"/>
-            <MTextInput label="Password" secureTextEntry right={<TextInput.Icon name="eye" />}/>
+            <MTextInput label="Username" 
+              autoCapitalize='none' 
+              autoCorrect={false} 
+              value={username} 
+              returnKeyType="next"
+              onChangeText={(value: string) => setUsername(value)}/>
+            <MTextInput label="Password" 
+              value={password} 
+              returnKeyType="done"
+              onSubmitEditing={() => onSubmit()}
+              onChangeText={(value: string) => setPassword(value)} 
+              secureTextEntry right={<TextInput.Icon name="eye" />}/>
           </MCardContent>
           <MCardActions style={styles.cardActionsInput}>
-            <MPrimaryButton onPress={() => { navigation.navigate('Root')}} icon="fingerprint" style={styles.buttonLogin}>Login</MPrimaryButton>
+            <MPrimaryButton onPress={() => onSubmit()} 
+              icon="fingerprint" style={styles.buttonLogin}>Login</MPrimaryButton>
             <MSecondaryButton onPress={() => { navigation.navigate('SignUp')}} 
               style={[styles.buttonSignUp, styles.buttonBorderRadius]} contentStyle={styles.buttonBorderRadius}>Sign Up</MSecondaryButton>
           </MCardActions>
-        </MCard>
+      </MCard>
+      {
+        loading == true && <MActivityIndicator />
+      }
+      {
+        modalMessage != '' && (<SAlertModal visible={modalMessage != ''} onPress={() => setModalMessage('')}>
+          <Text>{modalMessage}</Text>
+        </SAlertModal>)
+      }
       </LinearGradient>
     </View>
+  );
+}
+
+function AttemptLogin(navigation: any, username: string, password: string) {
+  return Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256,password).then(passwordHash =>
+    Login(username, passwordHash).then((response) => response)
   );
 }
 
@@ -49,8 +109,9 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%'
   },
-  viewLogin: {
+  cardLogin: {
     height: '60%',
+    maxHeight: 400,
     flexDirection: 'row'
   },
   viewLogo: {

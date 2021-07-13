@@ -3,14 +3,16 @@ import { StatusBar } from 'expo-status-bar';
 import React from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { DefaultTheme, Provider as PaperProvider } from 'react-native-paper';
+import { Provider as StoreProvider } from 'react-redux';
 import useCachedResources from './hooks/useCachedResources';
 import useColorScheme from './hooks/useColorScheme';
-import Navigation from './navigation';
+import Navigation from './navigation/MainNavigation';
+import { store } from './redux/Store';
 
 export default function App() {
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
-
+  
   const theme = {
     ...DefaultTheme,
     roundness: 2,
@@ -26,12 +28,14 @@ export default function App() {
     return null;
   } else {
     return (
-      <PaperProvider theme={theme}>
-        <SafeAreaProvider>
-          <Navigation colorScheme={colorScheme} />
-          <StatusBar />
-        </SafeAreaProvider>
-      </PaperProvider>
+      <StoreProvider store={store}>
+        <PaperProvider theme={theme}>
+          <SafeAreaProvider>
+            <Navigation colorScheme={colorScheme} />
+            <StatusBar />
+          </SafeAreaProvider>
+        </PaperProvider>
+      </StoreProvider>
     );
   }
 }
