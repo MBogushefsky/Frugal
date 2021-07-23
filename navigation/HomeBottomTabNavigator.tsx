@@ -5,7 +5,7 @@ import * as React from 'react';
 
 import Colors from '../constants/Colors';
 import useColorScheme from '../hooks/useColorScheme';
-import HomeScreen from '../screens/HomeScreen';
+import DashboardScreen from '../screens/DashboardScreen';
 import { BottomTabParamList, TabOneParamList, TabTwoParamList } from '../types';
 
 const HomeBottomTab = createBottomTabNavigator();
@@ -19,14 +19,14 @@ export default function HomeBottomTabNavigator() {
       tabBarOptions={{ activeTintColor: Colors[colorScheme].tint }}>
       <HomeBottomTab.Screen
         name="Home"
-        component={HomeScreen}
+        component={DashboardScreen}
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="home-outline" color={color} />,
         }}
       />
       <HomeBottomTab.Screen
         name="TabTwo"
-        component={HomeScreen}
+        component={DashboardScreen}
         options={{
           tabBarIcon: ({ color }) => <TabBarIcon name="ios-code" color={color} />,
         }}

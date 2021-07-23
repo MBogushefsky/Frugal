@@ -27,9 +27,16 @@ export function MCardActions(props: any) {
 
 export function MListSection(props: any) {
     return <List.Section {...props} 
-          style={[props.style, styles.listSection]}>
+          style={[styles.listSection, props.style]}>
           {props.children}
       </List.Section>;
+}
+
+export function MListSubheader(props: any) {
+    return <List.Subheader {...props} 
+          style={[styles.listSubheader, props.style]}>
+          {props.children}
+      </List.Subheader>;
 }
 
 export function MListItem(props: any) {
@@ -40,10 +47,7 @@ export function MListItem(props: any) {
 }
 
 export function MDivider(props: any) {
-    return <Divider {...props} 
-          style={[styles.divider, props.style]}>
-          {props.children}
-      </Divider>;
+    return <Divider {...props} style={[styles.divider, props.style]}/>;
 }
 
 export function MTextInput(props: any) {
@@ -92,6 +96,8 @@ const styles = StyleSheet.create({
         overflow: 'hidden'
     },
     listSection: {
+    },
+    listSubheader: {
     },
     divider: {
         marginVertical: 5,

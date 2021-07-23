@@ -6,7 +6,7 @@ import { MPrimaryButton, MCard, MCardActions, MCardContent, MTextInput, MSeconda
 import { Text, View } from '../components/Themed';
 import { Login } from '../services/RestApiService';
 import * as Crypto from 'expo-crypto';
-import { SAlertModal } from '../components/StyledComponents';
+import { SAlertModal, SView } from '../components/StyledComponents';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CommonActions } from '@react-navigation/native';
 
@@ -14,11 +14,12 @@ export default function LoginScreen({ navigation }: any) {
   const [username, setUsername] = React.useState('');
   const [password, setPassword] = React.useState('');
   const [loading, setLoading] = React.useState(false);
-  const [modalMessage, setModalMessage] = React.useState('');
+  const [modalTitle, setModalTitle] = React.useState(null as any);
+  const [modalMessage, setModalMessage] = React.useState(null as any);
 
   function onSubmit() {
     setLoading(true);
-    AttemptLogin(navigation, username, password).then((response) => { 
+    AttemptLogin(username, password).then((response) => { 
       setLoading(false); 
       if (response.ok) {
         response.json().then((responseJson) => {
@@ -34,16 +35,20 @@ export default function LoginScreen({ navigation }: any) {
         })
       }
       else if (response.status == 404) {
+        setModalTitle('Invalid Credentials');
         setModalMessage('Incorrect username and password');
       }
       else {
-        response.json().then((responseJson) => {setModalMessage(JSON.stringify(responseJson))});
+        response.json().then((responseJson) => {
+          setModalTitle('Something went wrong');
+          setModalMessage(JSON.stringify(responseJson));
+        });
       }
     });
   }
 
   return (
-    <View style={styles.container}>
+    <SView style={styles.container} loading={loading} modalTitle={modalTitle} modalMessage={modalMessage} onRequestClose={() => setModalMessage(null)}>
       <LinearGradient colors={['rgb(97, 206, 112)', 'rgb(8, 170, 151)']}
         style={styles.linearGradientBackground}>
         <MCard style={styles.cardLogin}>
@@ -76,21 +81,13 @@ export default function LoginScreen({ navigation }: any) {
             <MSecondaryButton onPress={() => { navigation.navigate('SignUp')}} 
               style={[styles.buttonSignUp, styles.buttonBorderRadius]} contentStyle={styles.buttonBorderRadius}>Sign Up</MSecondaryButton>
           </MCardActions>
-      </MCard>
-      {
-        loading == true && <MActivityIndicator />
-      }
-      {
-        modalMessage != '' && (<SAlertModal visible={modalMessage != ''} onPress={() => setModalMessage('')}>
-          <Text>{modalMessage}</Text>
-        </SAlertModal>)
-      }
+        </MCard>
       </LinearGradient>
-    </View>
+    </SView>
   );
 }
 
-function AttemptLogin(navigation: any, username: string, password: string) {
+function AttemptLogin(username: string, password: string) {
   return Crypto.digestStringAsync(Crypto.CryptoDigestAlgorithm.SHA256,password).then(passwordHash =>
     Login(username, passwordHash).then((response) => response)
   );

@@ -1,23 +1,30 @@
 import * as React from 'react';
-import { Modal, Pressable, RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
+import { Animated, Easing, Modal, RefreshControl, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { TextProps } from './Themed';
 import { Badge, Text } from 'react-native-paper';
 import SegmentedControl from '@react-native-segmented-control/segmented-control';
-import { MActivityIndicator } from './StyledMaterial';
+import { MActivityIndicator, MDivider, MPrimaryButton } from './StyledMaterial';
 import { ConvertToCurrency, GetAmountType, AmountType } from '../services/FoundationService';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export function SView(props: any) {
+  if (props.pageLoading) {
+    return <View style={styles.loadingView}>
+      <MActivityIndicator />
+    </View>
+  }
+
   return <View {...props} style={[styles.view, props.style]}>
     {props.children}
     {
       props.loading == true && <MActivityIndicator />
     }
     {
-      props.modalMesage != null && (<SAlertModal visible={props.modalMesage != null} onPress={props.onPress}>
-        <SText>{props.modalMesage}</SText>
+      props.modalMessage != null && (<SAlertModal title={props.modalTitle} visible={props.modalMessage != null} onRequestClose={props.onRequestClose}>
+        <SText style={styles.modalText}>{props.modalMessage}</SText>
       </SAlertModal>)
     }
-  </View>;
+  </View>
 }
 
 export function SScrollView(props: any) {
@@ -40,28 +47,50 @@ export function SText(props: TextProps) {
   </Text>;
 }
 
-export function SSegmentControl(props: any) {
+export function SSegmentedControl(props: any) {
   return <SegmentedControl {...props} 
     style={[styles.segmentControl, props.style]}/>
 }
 
 export function SAlertModal(props: any) {
+  let animatedValue = new Animated.Value(0);
+
+  Animated.timing(animatedValue, {
+    toValue: 1,
+    duration: 750,
+    easing: Easing.out(Easing.exp),
+    useNativeDriver: true
+  }).start();
+
+  const animatedStyle = {
+    transform: [
+      { 
+        scaleX: animatedValue
+      },
+      {
+        scaleY: animatedValue
+      }]
+  };
+
   return <Modal {...props} 
-    animationType="slide"
+    animationType="fade"
     transparent={true}
     visible={props.visible}
     onRequestClose={props.onRequestClose}>
-    <View style={styles.centeredView}>
-      <View style={styles.modalView}>
-        {props.children}
-        <View style={styles.modalText}></View>
-        <Pressable
-          style={[styles.button, styles.buttonClose]}
-          onPress={props.onPress}>
-          <Text style={styles.textStyle}>OK</Text>
-        </Pressable>
-      </View>
-    </View>
+    <TouchableOpacity style={styles.alertModalOuterView} onPress={props.onRequestClose}>
+      <Animated.View style={[styles.alertModalView, animatedStyle]}>
+        <View style={styles.alertModalViewTitle}>
+          <SText style={styles.alertModalViewTitleText}>{props.title}</SText>
+          <MDivider style={styles.alertModalViewTitleDivider} />
+        </View>
+        <View style={styles.alertModalViewDetailText}>{props.children}</View>
+        <View style={styles.alertModalViewButton}>
+          <MPrimaryButton style={styles.alertModalPrimaryButton} contentStyle={styles.alertModalViewButtonContent} onPress={props.onRequestClose}>
+            OK
+          </MPrimaryButton>
+        </View>
+      </Animated.View>
+    </TouchableOpacity>
   </Modal>
 }
 
@@ -99,12 +128,18 @@ export function SCurrencyBadge(props: any) {
 }
 
 const styles = StyleSheet.create({
+  loadingView: {
+    width: '100%',
+    height: '100%'
+  },
   view: {
+    width: '100%'
   },
   scrollView: {
     width: '100%'
   },
   scrollViewContent: {
+    width: '100%'
   },
   text: {
     fontFamily: 'System'
@@ -112,18 +147,22 @@ const styles = StyleSheet.create({
   segmentControl: {
     marginHorizontal: 10
   },
-  centeredView: {
+  alertModalOuterView: {
     flex: 1,
+    width: '100%',
     justifyContent: "center",
     alignItems: "center",
-    marginTop: 22
+    backgroundColor: 'rgba(0, 0, 0, 0.4)'
   },
-  modalView: {
-    margin: 20,
+  modalText: {
+    textAlign: 'center',
+    fontSize: 18
+  },
+  alertModalView: {
+    width: '70%',
+    maxHeight: 200,
     backgroundColor: "white",
     borderRadius: 20,
-    padding: 35,
-    alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -132,29 +171,40 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-    minHeight: 200,
+    justifyContent: 'flex-end'
+  },
+  alertModalViewTitle: {
+    // height: '50%'
+    // height: 75
+  },
+  alertModalViewTitleText: {
+    fontSize: 20,
+    textAlign: 'center',
+    marginVertical: 15
+  },
+  alertModalViewTitleDivider: {
+    marginVertical: 0
+  },
+  alertModalViewDetailText: {
+    // height: '30%',
+    marginVertical: 15,
+    textAlign: "center",
+    alignItems: 'center',
     justifyContent: 'center'
   },
-  button: {
-    borderRadius: 20,
-    padding: 10,
-    elevation: 2,
-    minWidth: 200
+  alertModalViewButton: {
+    // height: '20%'
+    height: 50
   },
-  buttonOpen: {
-    backgroundColor: "#F194FF",
+  alertModalViewButtonContent: {
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    overflow: 'hidden'
   },
-  buttonClose: {
-    backgroundColor: "#2196F3",
-  },
-  textStyle: {
-    color: "white",
-    fontWeight: "bold",
-    textAlign: "center"
-  },
-  modalText: {
-    marginBottom: 15,
-    textAlign: "center"
+  alertModalPrimaryButton: {
+    borderBottomLeftRadius: 20,
+    borderBottomRightRadius: 20,
+    overflow: 'hidden'
   },
   textCurrencyPositive: {
     color: 'green'
