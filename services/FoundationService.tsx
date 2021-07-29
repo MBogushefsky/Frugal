@@ -34,8 +34,8 @@ export function ScrambleBankAccountsIfNeeded(bankAccounts: BankAccount[]) {
     if (environment.scrambleData) {
         for (let i = 0; i < bankAccounts.length; i++) {
             bankAccounts[i].name = 'Bank Account ' + (i + 1);
-            bankAccounts[i].currentBalance *= 6.35;
-            bankAccounts[i].availableBalance *= 6.35;
+            bankAccounts[i].currentBalance = 1;
+            bankAccounts[i].availableBalance = 1;
         }
     }
     return bankAccounts;
@@ -46,7 +46,7 @@ export function ScrambleTransactionsIfNeeded(transactions: Transaction[]) {
         for (let i = 0; i < transactions.length; i++) {
             transactions[i].merchantName = 'Merchant ' + (i + 1);
             transactions[i].name = 'Transaction ' + (i + 1);
-            transactions[i].amount *= 6.35;
+            transactions[i].amount = 1;
         }
     }
     return transactions;
@@ -58,7 +58,7 @@ export function ScrambleGroupedTransactionsIfNeeded(transactionGroups: Transacti
             for (let i = 0; i < transactionGroup.length; i++) {
                 transactionGroup[i].merchantName = 'Merchant ' + (i + 1);
                 transactionGroup[i].name = 'Transaction ' + (i + 1);
-                transactionGroup[i].amount *= 6.35;
+                transactionGroup[i].amount = 1;
             }
         }
     }

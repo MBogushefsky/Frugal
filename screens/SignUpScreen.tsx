@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
     height: '100%'
   },
   viewSignUp: {
-    height: '90%',
+    height: '70%',
     flexDirection: 'row'
   },
   viewLogo: {

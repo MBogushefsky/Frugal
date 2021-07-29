@@ -202,7 +202,7 @@ export default function SideMenuDrawerNavigator() {
             activeTintColor: colors.primary,
             inactiveTintColor: colors.backdrop,
             }} drawerContent={props => <CustomDrawerContent {...props} />}>
-            <Drawer.Screen name="Dashboard" component={DashboardScreenNavigator} options={{ headerTitle: 'Home', 
+            <Drawer.Screen name="Dashboard" component={DashboardScreenNavigator} options={{ headerTitle: 'Dashboard', 
                 drawerIcon: ({ focused, size }) => <Ionicons name="albums-outline" size={size} 
                     style={[focused ? { color: colors.primary } : { color: colors.backdrop }, styles.drawerIcon]}/>
             }}/>
